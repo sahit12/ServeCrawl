@@ -1,0 +1,81 @@
+{% extends 'crawl/base.html' %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <div class="container">
+        <form method="POST">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="sumlink">Wiki Link</label>
+                <input type="text" class="form-control text-muted" id="sumlink" name="sumlink" placeholder="Enter wiki link" required>
+                <small class="form-text text-info">Enter wiki link for summary.</small>
+            </div>
+            <div class="text-center">
+                <button type="submit" class="ui primary button" name="submit">Submit</button>
+            </div>
+        </form>
+        {% if results %}
+        <h3 class="mt-4">Summary</h3>
+        <hr>
+        <p class="text-justify" style="letter-spacing: 1px;">{{ results }}</p>
+        {% endif %}
+        <div class="mt-4 pd-2" id="chart"></div>
+        </div>
+    </div>
+    <script>
+        {% if frequency %}
+        var options = {
+            chart: {
+                height: 350,
+                type: 'bar',
+                zoom: {
+                    enabled: false
+                }
+            },
+            plotOptions: {
+                bar: {
+                    horizontal: false,
+                    columnWidth: '15%',
+                    endingShape: 'rounded'	
+                },
+            },
+            dataLabels: {
+                enabled: false
+            },
+            stroke: {
+                show: true,
+                width: 2,
+                colors: ['transparent']
+            },
+            title: {
+                text: 'Frequency distribution of Article',
+                align: 'center'
+            },
+            grid: {
+                row: {
+                    colors: ['#f3f3f3', 'transparent'], // takes an array which will be repeated on columns
+                    opacity: 0.5
+                },
+            },
+            series: [{
+                name: "Word Frequency",
+                data: [{% for i in frequency|slice:':20' %}{{ i.0 }},{% endfor %}]
+            }],
+            fill: {
+                opacity: 1
+            },
+            xaxis: {
+                categories: [{% for i in frequency|slice:':20' %}'{{i.1}}',{% endfor %}],
+            }
+        }
+
+        var chart = new ApexCharts(
+            document.querySelector("#chart"),
+            options
+        );
+
+        chart.render();
+        {% endif %}
+    </script>
+{% endblock content %}
